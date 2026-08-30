@@ -321,8 +321,8 @@ B.Tech – Computer Science & Engineering
 
 ### 🔗 Connect with Me
 
-* LinkedIn: *Add your LinkedIn profile link*
-* GitHub: *Add your GitHub profile link*
+* LinkedIn: https://www.linkedin.com/in/prajna-mondal-1b864137a/
+
 
 ---
 
