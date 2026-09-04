@@ -1,61 +1,63 @@
-#  Email Spam Detection with Machine Learning
+#  Email Spam Detection using Machine Learning & NLP
 
-##  Project Overview
+##  Overview
 
-This project focuses on building a **Natural Language Processing (NLP) based binary classification system** to distinguish between **Spam** and **Ham (legitimate)** messages.
+This project is a **Natural Language Processing (NLP) and Machine Learning-based Spam Detection system** developed to classify text messages into two categories:
 
-The project uses **text preprocessing, TF-IDF feature extraction, and machine learning classification algorithms** to identify unwanted messages.
+*  **Ham** – Legitimate messages
+*  **Spam** – Unwanted messages
 
-This project was completed as part of my **Data Analytics / Machine Learning Internship Task 4**.
+The project demonstrates a complete machine learning workflow, starting from **data exploration and text preprocessing** to **TF-IDF feature extraction, model training, and performance evaluation**.
+
+I developed this project to gain practical hands-on experience with **NLP, text classification, feature engineering, and machine learning model evaluation**.
 
 ---
 
 ##  Objective
 
-The main objective of this project is to develop a machine learning model that can automatically classify text messages into:
+The main objective of this project is to build a binary classification system capable of identifying whether a given message is **spam or legitimate (ham)**.
 
-* 📨 **Ham** – Legitimate messages
-*  **Spam** – Unwanted or potentially fraudulent messages
-
-The project also evaluates different machine learning models using multiple performance metrics.
+The project focuses on understanding how machine learning algorithms can process textual data and identify patterns associated with spam messages.
 
 ---
 
-##  Technologies & Tools
+##  Tech Stack
 
 * **Python**
-* **Pandas** – Data loading and manipulation
-* **NumPy** – Numerical operations
-* **Matplotlib** – Data visualization
-* **Seaborn** – Statistical visualization
-* **NLTK** – Text preprocessing
-* **Regular Expressions (re)** – Text cleaning
-* **Scikit-learn** – Machine learning and evaluation
-* **TF-IDF Vectorizer** – Text feature extraction
-* **WordCloud** – Word frequency visualization
-* **Jupyter Notebook**
+* **Pandas**
+* **NumPy**
+* **Scikit-learn**
+* **NLTK**
+* **Regular Expressions**
+* **Matplotlib**
+* **Seaborn**
+* **WordCloud**
+* **Jupyter Notebook / Google Colab**
 
 ---
 
 ##  Dataset
 
-The project uses the **SMS Spam Collection Dataset**, a classic dataset containing labeled SMS messages.
+The project uses an SMS spam dataset containing **5,572 messages** with the following relevant fields:
 
-Each message belongs to one of two categories:
+| Column      | Description                          |
+| ----------- | ------------------------------------ |
+| `spamORham` | Target label indicating spam or ham  |
+| `Message`   | Text message used for classification |
 
-| Label  | Description           |
-| ------ | --------------------- |
-| `ham`  | Legitimate message    |
-| `spam` | Unwanted/spam message |
+The dataset contains:
 
-The dataset contains **5,572 messages**.
+* **4,825 Ham messages**
+* **747 Spam messages**
 
-### Dataset Distribution
+### Class Distribution
 
-* **Ham:** 4,825 messages (~86.6%)
-* **Spam:** 747 messages (~13.4%)
+| Class | Count | Percentage |
+| ----- | ----: | ---------: |
+| Ham   | 4,825 |     86.59% |
+| Spam  |   747 |     13.41% |
 
-The class distribution shows that the dataset is **imbalanced**, with significantly more ham messages than spam messages.
+The distribution shows that the dataset is **imbalanced**, with legitimate messages significantly outnumbering spam messages.
 
 ---
 
@@ -76,7 +78,7 @@ TF-IDF Feature Extraction
    ↓
 Train-Test Split
    ↓
-Machine Learning Models
+Model Training
    ↓
 Model Evaluation
    ↓
@@ -87,70 +89,56 @@ Model Comparison
 
 ---
 
-##  1. Data Loading & Inspection
+##  1. Data Loading & Exploration
 
-The dataset was loaded using Pandas.
+I loaded the dataset using Pandas and performed an initial inspection to understand its structure.
 
-Initial data analysis included:
+The analysis included:
 
-* Dataset shape
-* First and last records
-* Data types
-* Missing value detection
-* Duplicate value detection
-* Class distribution
+* Viewing sample records
+* Checking dataset dimensions
+* Checking data types
+* Checking missing values
+* Checking duplicate records
+* Analyzing spam and ham distribution
 
-Example:
-
-```python
-df = pd.read_csv("spam-task-4.csv")
-```
+The dataset contains **5,572 rows and 3 columns**, including an index-like column, the classification label, and the message text.
 
 ---
 
 ##  2. Text Preprocessing
 
-Raw text cannot be directly used by most machine learning algorithms. Therefore, the messages were cleaned and transformed before feature extraction.
+Since machine learning models cannot directly work with raw text, I applied several preprocessing techniques to prepare the messages.
 
-The preprocessing steps include:
+### Preprocessing steps:
 
-1. Converting text to lowercase
-2. Removing punctuation and unnecessary characters
-3. Splitting text into individual words
-4. Removing English stopwords
-5. Applying stemming using **Porter Stemmer**
+1. Converted text to lowercase
+2. Removed unnecessary characters and punctuation
+3. Tokenized the messages into words
+4. Removed English stopwords
+5. Applied **Porter Stemming**
+6. Reconstructed the processed text
 
-### Example
-
-```python
-def preprocess(text):
-    text = text.lower()
-    text = re.sub(r'[^a-zA-Z]', ' ', text)
-    words = text.split()
-
-    words = [
-        ps.stem(word)
-        for word in words
-        if word not in stopwords.words('english')
-    ]
-
-    return " ".join(words)
-```
+This step helps reduce unnecessary noise and makes the text more suitable for feature extraction.
 
 ---
 
 ##  3. TF-IDF Feature Extraction
 
-**TF-IDF (Term Frequency–Inverse Document Frequency)** was used to convert the preprocessed text into numerical features.
+I used **TF-IDF (Term Frequency–Inverse Document Frequency)** to transform the processed text into numerical features.
 
-TF-IDF measures the importance of a word within a document relative to the entire collection of documents.
+TF-IDF assigns importance to words based on:
 
-A word receives a higher score when it is important to a particular message but does not appear frequently across the entire dataset.
+* How frequently a word appears in a particular message
+* How frequently the word appears across the entire dataset
+
+This allows machine learning algorithms to work with textual information in numerical form.
 
 ```python
 tfidf = TfidfVectorizer()
 
-X = tfidf.fit_transform(df['processed'])
+x = tfidf.fit_transform(df['processed'])
+y = df['spamORham']
 ```
 
 ---
@@ -159,55 +147,52 @@ X = tfidf.fit_transform(df['processed'])
 
 The dataset was divided into training and testing sets using an **80:20 split**.
 
-* **80%** → Training data
-* **20%** → Testing data
-
 ```python
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
+x_train, x_test, y_train, y_test = train_test_split(
+    x,
     y,
     test_size=0.2,
     random_state=42
 )
 ```
 
-The training set is used to train the models, while the testing set evaluates their performance on unseen data.
+The training data was used to build the models, while the test data was used to evaluate their performance on unseen messages.
 
 ---
 
 ##  5. Machine Learning Models
 
-Two classification algorithms were implemented.
+I implemented and compared two machine learning algorithms.
 
-### 1. Multinomial Naive Bayes
+### 1️. Multinomial Naive Bayes
 
-Multinomial Naive Bayes is widely used for **text classification** because it works effectively with text-derived features such as word counts and TF-IDF values.
+Multinomial Naive Bayes is commonly used for text classification and works effectively with TF-IDF-based features.
 
 ```python
 nb = MultinomialNB()
 
-nb.fit(X_train, y_train)
+nb.fit(x_train, y_train)
 
-pred_nb = nb.predict(X_test)
+pred_nb = nb.predict(x_test)
 ```
 
-### 2. Logistic Regression
+### 2️. Logistic Regression
 
-Logistic Regression was used as an alternative binary classification model.
+Logistic Regression was used as an alternative binary classification algorithm.
 
 ```python
 lr = LogisticRegression()
 
-lr.fit(X_train, y_train)
+lr.fit(x_train, y_train)
 
-pred_lr = lr.predict(X_test)
+pred_lr = lr.predict(x_test)
 ```
 
----
+## Both models were evaluated using the same testing dataset.
 
 ##  6. Model Evaluation
 
-The models were evaluated using:
+I evaluated the models using multiple classification metrics:
 
 * **Accuracy**
 * **Precision**
@@ -215,47 +200,113 @@ The models were evaluated using:
 * **F1-Score**
 * **Confusion Matrix**
 
-### Why Multiple Metrics?
+### Model Accuracy
 
-Accuracy alone may not provide a complete picture when dealing with an **imbalanced dataset**.
+| Model                   | Accuracy |
+| ----------------------- | -------: |
+| Multinomial Naive Bayes |   86.99% |
+| Logistic Regression     |   86.99% |
 
-Therefore, precision, recall, and F1-score were also considered to better understand the model's ability to identify spam messages.
+Both models achieved approximately **86.99% accuracy** in the current implementation.
 
----
+### Important Observation
 
-##  Why is Recall Important for Spam Detection?
+Although the overall accuracy is around 87%, the dataset is imbalanced and the current models show a **low recall for the spam class**.
 
-Recall is particularly important because it measures how many of the **actual spam messages** are correctly identified by the model.
+This demonstrates an important machine learning lesson:
 
-A low spam recall means that many spam messages are being incorrectly classified as legitimate messages.
+> **Accuracy alone is not always sufficient, especially for imbalanced classification problems.**
 
-For a real-world spam detection system, improving spam recall can help prevent unwanted or potentially harmful messages from reaching users.
-
----
-
-##  Confusion Matrix
-
-A confusion matrix was used to understand the classification results in detail.
-
-It shows:
-
-* **True Positive (TP)** – Spam correctly identified as spam
-* **True Negative (TN)** – Ham correctly identified as ham
-* **False Positive (FP)** – Ham incorrectly classified as spam
-* **False Negative (FN)** – Spam incorrectly classified as ham
-
-This provides more insight into model performance than accuracy alone.
+For spam detection, correctly identifying actual spam messages is particularly important, so recall should be carefully considered alongside accuracy.
 
 ---
 
-##  WordCloud Visualization
+##  Why is Recall Important?
 
-As an additional analysis, WordCloud visualizations can be used to identify frequently occurring words in:
+Recall measures how many of the actual spam messages are correctly identified by the model.
 
-* Spam messages
-* Ham messages
+A low spam recall means that some spam messages are incorrectly classified as legitimate messages.
 
-This provides a visual understanding of the vocabulary commonly associated with each class.
+Therefore, for a practical spam detection system, improving **spam recall** would be an important area for further development.
+
+---
+
+##  7. Confusion Matrix
+
+I also used a confusion matrix to understand the classification results in more detail.
+
+The confusion matrix helps identify:
+
+* True Positives
+* True Negatives
+* False Positives
+* False Negatives
+
+This provides a clearer picture of how well the model distinguishes between spam and ham messages.
+
+---
+
+##  8. WordCloud
+
+As an additional visualization, WordCloud can be used to explore frequently occurring words in spam and ham messages.
+
+This provides a simple visual representation of the vocabulary commonly associated with each category.
+
+---
+
+##  Project Explanation Video
+
+I also created a **project explanation video** where I walk through the complete implementation and explain the major steps of the project.
+
+The video covers:
+
+* Project objective
+* Dataset and class distribution
+* Text preprocessing
+* TF-IDF feature extraction
+* Machine learning models
+* Model evaluation
+* Confusion matrix
+* Key observations and learnings
+
+###  Video Links
+
+* **GitHub:** This repository contains the complete notebook and project files.
+* **LinkedIn:** [Add your LinkedIn post/video link]
+* **Project Walkthrough Video:** [Add your video link]
+
+---
+
+##  Key Learnings
+
+Through this project, I gained practical experience in:
+
+* Natural Language Processing
+* Text preprocessing
+* Stopword removal
+* Stemming
+* TF-IDF feature engineering
+* Binary classification
+* Multinomial Naive Bayes
+* Logistic Regression
+* Model evaluation
+* Confusion matrix interpretation
+* Working with imbalanced datasets
+
+---
+
+##  Future Improvements
+
+Some possible improvements for this project include:
+
+* Improving spam recall
+* Applying class-balancing techniques
+* Using **Support Vector Machine (SVM)**
+* Hyperparameter tuning
+* Experimenting with TF-IDF n-grams
+* Comparing stemming with lemmatization
+* Testing advanced NLP techniques
+* Deploying the model as a simple web application
 
 ---
 
@@ -271,59 +322,29 @@ Email-Spam-Detection/
 
 ---
 
-##  Key Learnings
-
-Through this project, I gained practical experience in:
-
-* Natural Language Processing (NLP)
-* Text preprocessing
-* Stopword removal
-* Stemming
-* TF-IDF feature engineering
-* Binary classification
-* Multinomial Naive Bayes
-* Logistic Regression
-* Model evaluation
-* Confusion matrix analysis
-* Handling imbalanced classification datasets
-
----
-
-##  Future Improvements
-
-The project can be further improved by:
-
-* Using **class balancing techniques**
-* Testing **Support Vector Machine (SVM)**
-* Hyperparameter tuning
-* Using **n-grams** with TF-IDF
-* Trying lemmatization instead of stemming
-* Comparing additional NLP techniques
-* Building a simple web application for real-time spam prediction
-
----
-
 ##  Conclusion
 
-This project demonstrates how **Natural Language Processing and Machine Learning** can be applied to automatically classify messages as spam or legitimate.
+This project demonstrates a complete **NLP-based machine learning pipeline for spam detection**.
 
-By combining text preprocessing, TF-IDF feature extraction, and machine learning classification algorithms, the project provides a practical implementation of an NLP-based spam detection pipeline.
+Starting with raw text data, I performed data exploration and preprocessing, converted the messages into numerical features using TF-IDF, trained two classification models, and evaluated their performance using multiple metrics.
 
-The project also highlights the importance of using **precision, recall, and F1-score alongside accuracy**, particularly when working with imbalanced datasets.
+An important takeaway from this project is that **model performance should not be judged by accuracy alone**. For an imbalanced spam classification problem, metrics such as recall, precision, and F1-score provide valuable additional insights.
+
+Overall, this project strengthened my practical understanding of **Python, NLP, feature engineering, machine learning classification, and model evaluation**.
 
 ---
 
 ##  Author
 
-**Prajna Mondal**
+### Prajna Mondal
 
-B.Tech – Computer Science & Engineering
+**B.Tech – Computer Science & Engineering**
 
-### 🔗 Connect with Me
+Interested in **Data Analytics, Machine Learning, Python, SQL, and Data Science**.
 
-* LinkedIn: https://www.linkedin.com/in/prajna-mondal-1b864137a/
 
+ **LinkedIn:** [Add your LinkedIn profile link]
 
 ---
 
-If you find this project useful, feel free to star the repository! Thank You.
+ If you found this project interesting, feel free to explore the repository and share your feedback! Thank You.
